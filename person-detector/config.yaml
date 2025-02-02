@@ -1,0 +1,23 @@
+name: "Edge Impulse Person Detector"
+version: "1.0.0"
+slug: "edge_impulse_person_detector"
+description: "Person detection using Edge Impulse"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: application
+boot: auto
+init: false
+options:
+  camera_entity: "camera.esp32_cam"
+  confidence_threshold: 0.7
+  scan_interval: 1
+schema:
+  camera_entity: str
+  confidence_threshold: float
+  scan_interval: int
+services:
+  - mqtt:need
