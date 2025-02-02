@@ -2,15 +2,17 @@ name: "Edge Impulse Person Detector"
 version: "1.0.0"
 slug: "edge_impulse_person_detector"
 description: "Person detection using Edge Impulse"
+url: "https://github.com/MusicMano/ha-person-detector"
 arch:
   - aarch64
   - amd64
   - armhf
   - armv7
   - i386
-url: "https://github.com/MusicMano/ha-person-detector"
-startup: "application"
-boot: "auto"
+init: false
+startup: application
+boot: auto
+s6_overlay_version: 3
 options:
   camera_entity: "camera.esp32_cam"
   confidence_threshold: 0.7
