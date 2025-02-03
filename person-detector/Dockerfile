@@ -1,18 +1,17 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.11-alpine3.18
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:14.0.2
 FROM ${BUILD_FROM}
 
 # Install dependencies
 RUN \
     apk add --no-cache \
         python3 \
+        py3-pip \
         py3-numpy \
         py3-pillow \
         py3-aiohttp \
-        bash \
         nodejs \
         npm
 
-# Create app directory
 WORKDIR /app
 
 # Copy app files
@@ -22,5 +21,7 @@ COPY edge-impulse-standalone.* /app/
 
 RUN chmod a+x /app/run.sh
 
-# Run the script
-CMD ["/app/run.sh"]
+# Copy root filesystem
+COPY rootfs /
+
+ENTRYPOINT ["/init"]
