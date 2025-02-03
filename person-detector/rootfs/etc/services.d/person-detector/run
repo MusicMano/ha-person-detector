@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start person detector service
+# ==============================================================================
+
+bashio::log.info "Starting Edge Impulse Person Detector..."
+cd /app
+exec ./run.sh

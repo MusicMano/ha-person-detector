@@ -1,8 +1,8 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.11-alpine3.18
 FROM ${BUILD_FROM}
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Copy root filesystem
+COPY rootfs /
 
 # Install dependencies
 RUN \
@@ -13,16 +13,27 @@ RUN \
         py3-aiohttp \
         bash \
         nodejs \
-        npm
+        npm \
+        jq
 
-# Create working directory
+# Create app directory
 WORKDIR /app
 
-# Copy files
+# Copy app files
 COPY run.sh /app/
 COPY person_detector.py /app/
 COPY edge-impulse-standalone.* /app/
 
 RUN chmod a+x /app/run.sh
 
-CMD [ "/app/run.sh" ]
+# Set workdir
+WORKDIR /app
+
+# Labels
+LABEL \
+    io.hass.version="1.0.0" \
+    io.hass.type="addon" \
+    io.hass.arch="aarch64|amd64|armhf|armv7|i386"
+
+# Entrypoint
+ENTRYPOINT ["/init"]
