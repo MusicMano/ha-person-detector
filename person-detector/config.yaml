@@ -9,7 +9,7 @@ arch:
   - armhf
   - armv7
   - i386
-init: true
+init: false
 startup: application
 boot: auto
 options:
