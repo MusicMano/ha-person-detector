@@ -1,21 +1,19 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.15
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.11-alpine3.18
 FROM ${BUILD_FROM}
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Setup base
+# Install dependencies
 RUN \
     apk add --no-cache \
         python3 \
-        py3-pip \
+        py3-numpy \
         py3-pillow \
+        py3-aiohttp \
+        bash \
         nodejs \
-        npm 
-
-# Install Python dependencies
-COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+        npm
 
 # Create working directory
 WORKDIR /app
@@ -27,4 +25,4 @@ COPY edge-impulse-standalone.* /app/
 
 RUN chmod a+x /app/run.sh
 
-CMD ["/app/run.sh"]
+CMD [ "/app/run.sh" ]
