@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start person detector service
+# ==============================================================================
+
+bashio::log.info "Starting Edge Impulse Person Detector..."
+
+cd /usr/src/app
+exec python3 person_detector.py

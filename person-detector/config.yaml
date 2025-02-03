@@ -9,10 +9,9 @@ arch:
   - armhf
   - armv7
   - i386
-init: false
+init: true
 startup: application
 boot: auto
-s6_overlay_version: 3
 options:
   camera_entity: "camera.esp32_cam"
   confidence_threshold: 0.7
