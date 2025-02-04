@@ -9,16 +9,9 @@ RUN apk add --no-cache \
     nodejs \
     npm
 
-# Set workdir
 WORKDIR /app
 
 # Copy files
-COPY run.sh /app/
-COPY person_detector.py /app/
-COPY edge-impulse-standalone.* /app/
+COPY . .
 
-# Make script executable
-RUN chmod +x /app/run.sh
-
-# Run script
-CMD ["/app/run.sh"]
+CMD ["python3", "person_detector.py"]
