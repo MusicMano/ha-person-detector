@@ -8,10 +8,16 @@ RUN \
         py3-pip \
         py3-numpy \
         py3-pillow \
-        py3-opencv \
         py3-aiohttp \
         nodejs \
-        npm
+        npm \
+        gcc \
+        musl-dev \
+        python3-dev \
+        linux-headers
+
+# Install OpenCV
+RUN pip3 install --no-cache-dir opencv-python-headless
 
 # Copy root filesystem
 COPY rootfs /
