@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import json
 import argparse
+import os
 from pathlib import Path
 
 class PersonDetector:
@@ -40,6 +41,7 @@ class PersonDetector:
 
     async def run_detection(self):
         """Main detection loop."""
+        print(f"Starting detection with camera: {self.camera_entity}")
         while True:
             try:
                 image = await self.get_camera_image()
@@ -47,6 +49,7 @@ class PersonDetector:
                     features = self.prepare_image(image)
                     # Run inference using Edge Impulse
                     # TODO: Add Edge Impulse inference code here
+                    person_detected = False  # Placeholder until we add inference
                     
                     # Publish results to Home Assistant
                     await self.publish_state(person_detected)
@@ -81,6 +84,7 @@ async def main():
     parser.add_argument("--interval", type=int, default=1)
     args = parser.parse_args()
 
+    print(f"Starting with camera={args.camera}, confidence={args.confidence}, interval={args.interval}")
     detector = PersonDetector(args.camera, args.confidence, args.interval)
     await detector.run_detection()
 
