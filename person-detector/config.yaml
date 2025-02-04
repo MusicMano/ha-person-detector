@@ -2,7 +2,6 @@ name: "Edge Impulse Person Detector"
 version: "1.0.0"
 slug: "edge_impulse_person_detector"
 description: "Person detection using Edge Impulse"
-image: "homeassistant/{arch}-addon-edge-impulse-person-detector"
 arch:
   - aarch64
   - amd64
