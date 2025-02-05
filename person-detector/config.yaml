@@ -8,9 +8,8 @@ arch:
   - armhf
   - armv7
   - i386
-url: "https://github.com/MusicMano/ha-person-detector"
+init: false
 startup: application
-init: true
 boot: auto
 map:
   - config:rw
@@ -22,4 +21,3 @@ schema:
   camera_entity: str
   confidence_threshold: float
   scan_interval: int
-stage: experimental
