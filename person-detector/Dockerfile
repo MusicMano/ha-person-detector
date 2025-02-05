@@ -1,32 +1,25 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.18
-FROM ${BUILD_FROM}
+FROM python:3.9-slim
 
-# Install required packages
-RUN \
-    apk add --no-cache \
-        python3 \
-        py3-pip \
-        py3-numpy \
-        py3-pillow \
-        py3-aiohttp \
-        nodejs \
-        npm \
-        gcc \
-        musl-dev \
-        python3-dev \
-        linux-headers
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3-opencv \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install OpenCV
-RUN pip3 install --no-cache-dir opencv-python-headless
+# Install Python packages
+RUN pip3 install numpy pillow aiohttp
 
-# Copy root filesystem
-COPY rootfs /
-
-# Copy app files
 WORKDIR /app
+
+# Copy application files
 COPY person_detector.py .
 COPY edge-impulse-standalone.* .
 
-# Labels
-LABEL \
-    io.hass.type="addon"
+# Copy service files
+COPY rootfs/ /
+
+# Make service executable
+RUN chmod a+x /etc/services.d/person-detector/run
+
+CMD ["/etc/services.d/person-detector/run"]
