@@ -1,25 +1,30 @@
-FROM python:3.9-slim
+ARG BUILD_FROM
+FROM ${BUILD_FROM}
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    python3-opencv \
-    nodejs \
-    npm \
-    && rm -rf /var/lib/apt/lists/*
+# Install required packages
+RUN \
+    apk add --no-cache \
+        python3 \
+        py3-pip \
+        nodejs \
+        npm
 
 # Install Python packages
-RUN pip3 install numpy pillow aiohttp
+RUN pip3 install --no-cache-dir \
+    numpy \
+    opencv-python-headless \
+    aiohttp \
+    pillow
 
-WORKDIR /app
+# Set up work directory
+WORKDIR /usr/src/app
 
-# Copy application files
-COPY person_detector.py .
-COPY edge-impulse-standalone.* .
+# Copy files
+COPY person_detector.py /usr/src/app/
+COPY edge-impulse-standalone.* /usr/src/app/
 
-# Copy service files
-COPY rootfs/ /
+# Copy rootfs
+COPY rootfs /
 
-# Make service executable
-RUN chmod a+x /etc/services.d/person-detector/run
-
-CMD ["/etc/services.d/person-detector/run"]
+ENTRYPOINT []
+CMD [ "/usr/bin/with-contenv", "/usr/src/app/person_detector.py" ]

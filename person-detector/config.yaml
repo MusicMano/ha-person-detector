@@ -8,11 +8,10 @@ arch:
   - armhf
   - armv7
   - i386
-init: false
+image: "ghcr.io/{BUILD_ARCH}-addon-edge_impulse_person_detector"
+init: true
 startup: application
 boot: auto
-map:
-  - config:rw
 options:
   camera_entity: "camera.esp32_cam"
   confidence_threshold: 0.7
@@ -21,3 +20,5 @@ schema:
   camera_entity: str
   confidence_threshold: float
   scan_interval: int
+ingress: false
+host_network: false
