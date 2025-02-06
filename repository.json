@@ -1,6 +1,16 @@
-echo '{
-  "name": "Edge Impulse Person Detector Add-on",
+{
+  "name": "Edge Impulse Person Detector Add-on Repository",
   "url": "https://github.com/MusicMano/ha-person-detector",
-  "maintainer": "MusicMano"
-}' > repository.json
-
+  "maintainer": "MusicMano",
+  "slug": "ha_person_detector",
+  "homeassistant": "0.92.0",
+  "addons": [
+    {
+      "name": "Edge Impulse Person Detector",
+      "slug": "edge_impulse_person_detector",
+      "description": "Person detection using Edge Impulse",
+      "version": "1.0.0",
+      "arch": ["aarch64", "amd64", "armhf", "armv7", "i386"]
+    }
+  ]
+}
