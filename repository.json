@@ -1,0 +1,6 @@
+echo '{
+  "name": "Edge Impulse Person Detector Add-on",
+  "url": "https://github.com/MusicMano/ha-person-detector",
+  "maintainer": "MusicMano"
+}' > repository.json
+
