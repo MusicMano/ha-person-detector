@@ -1,17 +1,16 @@
 # Start with the official Home Assistant base image
 FROM ghcr.io/home-assistant/amd64-base:3.15
 
-# Install required packages
+# Install required packages using Alpine's package manager
 RUN \
-    apt-get update \
-    && apt-get install -y \
-        libgl1-mesa-glx \
-        libglib2.0-0 \
-        curl \
-        xz-utils \
+    apk add --no-cache \
         python3 \
-        python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+        py3-pip \
+        mesa-gl \
+        glib \
+        curl \
+        xz \
+    && pip3 install --no-cache-dir wheel
 
 # Set s6-overlay version
 ENV S6_OVERLAY_VERSION=3.1.5.0
