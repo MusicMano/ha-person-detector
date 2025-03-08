@@ -1,18 +1,26 @@
-name: "Edge Impulse Person Detector"
+name: "Person Detector"
+description: "Detect people in camera feeds using Edge Impulse"
 version: "1.0.0"
-slug: "edge_impulse_person_detector"
-description: "Person detection using Edge Impulse"
+slug: "person_detector"
+init: false
 arch:
+  - aarch64
   - amd64
-startup: application
-boot: auto
-map:
-  - config:rw
+  - armhf
+  - armv7
+  - i386
 options:
-  camera_entity: ""
-  confidence_threshold: 0.8
-  scan_interval: 10
+  camera_entity: camera.front_door
+  confidence_threshold: 0.7
+  scan_interval: 1
+  edge_impulse_api_key: !secret edge_impulse_api_key
 schema:
   camera_entity: str
-  confidence_threshold: float
-  scan_interval: int
+  confidence_threshold: float(0,1)
+  scan_interval: int(1,60)
+  edge_impulse_api_key: str
+environment:
+  CAMERA_ENTITY: "{{ options.camera_entity }}"
+  CONFIDENCE_THRESHOLD: "{{ options.confidence_threshold }}"
+  SCAN_INTERVAL: "{{ options.scan_interval }}"
+  EDGE_IMPULSE_API_KEY: "{{ options.edge_impulse_api_key }}"
