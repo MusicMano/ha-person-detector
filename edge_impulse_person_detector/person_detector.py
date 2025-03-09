@@ -10,10 +10,23 @@ from pathlib import Path
 import requests  # For Edge Impulse API calls
 
 # Get configuration from environment variables with defaults
-CAMERA_ENTITY = os.environ.get('CAMERA_ENTITY', 'camera.front_door')
-CONFIDENCE_THRESHOLD = float(os.environ.get('CONFIDENCE_THRESHOLD', '0.7'))
-SCAN_INTERVAL = int(os.environ.get('SCAN_INTERVAL', '1'))
-EDGE_IMPULSE_API_KEY = os.environ.get('EDGE_IMPULSE_API_KEY', '')
+camera_entity = os.environ.get('CAMERA_ENTITY', 'camera.front_door')
+# Handle potential template strings for numeric values
+confidence_str = os.environ.get('CONFIDENCE_THRESHOLD', '0.7')
+try:
+    confidence_threshold = float(confidence_str)
+except ValueError:
+    print(f"Warning: Could not convert confidence threshold '{confidence_str}' to float. Using default 0.7")
+    confidence_threshold = 0.7
+
+scan_interval_str = os.environ.get('SCAN_INTERVAL', '1')
+try:
+    scan_interval = int(scan_interval_str)
+except ValueError:
+    print(f"Warning: Could not convert scan interval '{scan_interval_str}' to int. Using default 1")
+    scan_interval = 1
+
+edge_impulse_api_key = os.environ.get('EDGE_IMPULSE_API_KEY', '')
 
 class PersonDetector:
     def __init__(self, camera_entity, confidence_threshold, scan_interval, ei_api_key=None):
