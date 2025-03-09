@@ -1,4 +1,5 @@
 import os
+import json
 import time
 import asyncio
 import aiohttp
@@ -8,62 +9,40 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("person_detector")
 
-# Handle environment variables safely
-def get_float_env(name, default):
-    value = os.environ.get(name, default)
+# Try to read configuration from options.json
+def read_options():
+    options_path = "/data/options.json"
     try:
-        return float(value)
-    except (ValueError, TypeError):
-        logger.warning(f"Could not convert {name}='{value}' to float. Using default {default}")
-        return float(default)
+        if os.path.exists(options_path):
+            with open(options_path, 'r') as f:
+                options = json.load(f)
+                logger.info(f"Loaded configuration from {options_path}: {options}")
+                return options
+        else:
+            logger.warning(f"No configuration file found at {options_path}")
+            return {}
+    except Exception as e:
+        logger.error(f"Error reading options file: {str(e)}")
+        return {}
 
-def get_int_env(name, default):
-    value = os.environ.get(name, default)
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        logger.warning(f"Could not convert {name}='{value}' to int. Using default {default}")
-        return int(default)
-        
+# Log current directory and files to help debug
+logger.info(f"Current working directory: {os.getcwd()}")
+logger.info(f"Files in current directory: {os.listdir('.')}")
+logger.info(f"Environment variables: {dict(os.environ)}")
+
 # Read configuration from multiple possible sources
-def get_config(name, default, convert_func=None):
-    # Try options prefix (standard for addons)
-    options_name = f"OPTIONS_{name.upper()}"
-    value = os.environ.get(options_name)
-    
-    # If not found, try direct name
-    if value is None:
-        value = os.environ.get(name.upper())
-    
-    # If not found, try lowercase
-    if value is None:
-        value = os.environ.get(name.lower())
-        
-    # If not found, use default
-    if value is None:
-        logger.warning(f"Could not find configuration for {name}, using default: {default}")
-        value = default
-    else:
-        logger.info(f"Found configuration {name}={value}")
-        
-    # Apply conversion function if provided
-    if convert_func and value is not None:
-        try:
-            return convert_func(value)
-        except (ValueError, TypeError):
-            logger.warning(f"Could not convert {name}='{value}' to required type. Using default {default}")
-            return convert_func(default) if default is not None else None
-    
-    return value        
-        
-# Get configuration using the robust method
-CAMERA_ENTITY = get_config('camera_entity', 'camera.front_door')
-CONFIDENCE_THRESHOLD = get_config('confidence_threshold', '0.7', float)
-SCAN_INTERVAL = get_config('scan_interval', '1', int)
-EDGE_IMPULSE_API_KEY = get_config('edge_impulse_api_key', '')
+config = read_options()
 
-# Log the final configuration that will be used
-logger.info(f"Final configuration: camera_entity={CAMERA_ENTITY}, " +
+# First try options.json, then environment variables, then defaults
+CAMERA_ENTITY = config.get('camera_entity', os.environ.get('CAMERA_ENTITY', 'camera.front_door'))
+CONFIDENCE_THRESHOLD = float(config.get('confidence_threshold', os.environ.get('CONFIDENCE_THRESHOLD', 0.7)))
+SCAN_INTERVAL = int(config.get('scan_interval', os.environ.get('SCAN_INTERVAL', 1)))
+EDGE_IMPULSE_API_KEY = config.get('edge_impulse_api_key', os.environ.get('EDGE_IMPULSE_API_KEY', ''))
+
+# Log the configuration being used
+logger.info(f"Using configuration: camera={CAMERA_ENTITY}, confidence={CONFIDENCE_THRESHOLD}, interval={SCAN_INTERVAL}")
+
+# The rest of your code remains the same...
             f"confidence_threshold={CONFIDENCE_THRESHOLD}, " +
             f"scan_interval={SCAN_INTERVAL}")
 
