@@ -1,7 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-# Log that we're shutting down
-echo "Person detector service is shutting down..."
-
-# Give processes a chance to clean up
-sleep 1
