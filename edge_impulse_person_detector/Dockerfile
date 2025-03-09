@@ -8,6 +8,6 @@ WORKDIR /app
 RUN pip install aiohttp
 
 # Copy code
-COPY person_detector.py .
+COPY config.yaml /etc/config.yaml
 
 CMD ["python3", "/app/person_detector.py"]

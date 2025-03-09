@@ -1,12 +1,18 @@
-cat > run.sh << 'EOF'
 #!/bin/bash
+# Load config
+CONFIG_PATH=/data/options.json
 
-python3 /app/person_detector.py \
-  --camera "${CAMERA_ENTITY}" \
-  --confidence "${CONFIDENCE_THRESHOLD}" \
-  --interval "${SCAN_INTERVAL}" \
-  --ei-api-key "${EDGE_IMPULSE_API_KEY}"
-EOF
+# Parse config
+CAMERA_ENTITY="$(jq --raw-output '.camera_entity // empty' $CONFIG_PATH)"
+CONFIDENCE_THRESHOLD="$(jq --raw-output '.confidence_threshold // empty' $CONFIG_PATH)"
+SCAN_INTERVAL="$(jq --raw-output '.scan_interval // empty' $CONFIG_PATH)"
+EDGE_IMPULSE_API_KEY="$(jq --raw-output '.edge_impulse_api_key // empty' $CONFIG_PATH)"
 
-# Make it executable
-chmod +x run.sh
+# Export as environment variables
+export CAMERA_ENTITY=$CAMERA_ENTITY
+export CONFIDENCE_THRESHOLD=$CONFIDENCE_THRESHOLD
+export SCAN_INTERVAL=$SCAN_INTERVAL
+export EDGE_IMPULSE_API_KEY=$EDGE_IMPULSE_API_KEY
+
+# Run the Python script
+python3 /person_detector.py

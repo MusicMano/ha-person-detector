@@ -25,11 +25,53 @@ def get_int_env(name, default):
         logger.warning(f"Could not convert {name}='{value}' to int. Using default {default}")
         return int(default)
         
-# Get configuration from environment variables with proper prefixing
-CAMERA_ENTITY = os.environ.get('OPTIONS_CAMERA_ENTITY', 'camera.front_door')
-CONFIDENCE_THRESHOLD = get_float_env('OPTIONS_CONFIDENCE_THRESHOLD', '0.7')
-SCAN_INTERVAL = get_int_env('OPTIONS_SCAN_INTERVAL', '1')
-EDGE_IMPULSE_API_KEY = os.environ.get('OPTIONS_EDGE_IMPULSE_API_KEY', '')
+# Read configuration from multiple possible sources
+def get_config(name, default, convert_func=None):
+    # Try options prefix (standard for addons)
+    options_name = f"OPTIONS_{name.upper()}"
+    value = os.environ.get(options_name)
+    
+    # If not found, try direct name
+    if value is None:
+        value = os.environ.get(name.upper())
+    
+    # If not found, try lowercase
+    if value is None:
+        value = os.environ.get(name.lower())
+        
+    # If not found, use default
+    if value is None:
+        logger.warning(f"Could not find configuration for {name}, using default: {default}")
+        value = default
+    else:
+        logger.info(f"Found configuration {name}={value}")
+        
+    # Apply conversion function if provided
+    if convert_func and value is not None:
+        try:
+            return convert_func(value)
+        except (ValueError, TypeError):
+            logger.warning(f"Could not convert {name}='{value}' to required type. Using default {default}")
+            return convert_func(default) if default is not None else None
+    
+    return value        
+        
+# Get configuration using the robust method
+CAMERA_ENTITY = get_config('camera_entity', 'camera.front_door')
+CONFIDENCE_THRESHOLD = get_config('confidence_threshold', '0.7', float)
+SCAN_INTERVAL = get_config('scan_interval', '1', int)
+EDGE_IMPULSE_API_KEY = get_config('edge_impulse_api_key', '')
+
+# Log the final configuration that will be used
+logger.info(f"Final configuration: camera_entity={CAMERA_ENTITY}, " +
+            f"confidence_threshold={CONFIDENCE_THRESHOLD}, " +
+            f"scan_interval={SCAN_INTERVAL}")
+
+# Check all environment variables to debug
+logger.info("All environment variables:")
+for key, value in os.environ.items():
+    if 'TOKEN' not in key.upper():  # Don't log tokens/secrets
+        logger.info(f"  {key}={value}")
 
 class PersonDetector:
     def __init__(self, camera_entity, confidence_threshold, scan_interval, ei_api_key=None):
