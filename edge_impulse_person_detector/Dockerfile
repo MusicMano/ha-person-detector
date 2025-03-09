@@ -15,7 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy code
 COPY person_detector.py .
-COPY run.sh .
-RUN chmod +x run.sh
 
+# Direct Python execution (no shell script)
 CMD ["python3", "/app/person_detector.py"]
