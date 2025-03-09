@@ -19,8 +19,3 @@ schema:
   confidence_threshold: float(0,1)
   scan_interval: int(1,60)
   edge_impulse_api_key: str
-environment:
-  CAMERA_ENTITY: "{{ options.camera_entity }}"
-  CONFIDENCE_THRESHOLD: "{{ options.confidence_threshold }}"
-  SCAN_INTERVAL: "{{ options.scan_interval }}"
-  EDGE_IMPULSE_API_KEY: "{{ options.edge_impulse_api_key }}"
