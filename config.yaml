@@ -10,10 +10,10 @@ arch:
   - armv7
   - i386
 options:
-  camera_entity: camera.front_door
+  camera_entity: camera.basement_ai_cam_basement_ai_cam
   confidence_threshold: 0.7
   scan_interval: 1
-  edge_impulse_api_key: !secret edge_impulse_api_key
+  edge_impulse_api_key: "ei_d274e81230b26adbf50d93ac61dd8c602a80103a6150ea3231745e2f22871e73"
 schema:
   camera_entity: str
   confidence_threshold: float(0,1)
