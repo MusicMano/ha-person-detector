@@ -24,6 +24,27 @@ def get_int_env(name, default):
     except (ValueError, TypeError):
         logger.warning(f"Could not convert {name}='{value}' to int. Using default {default}")
         return int(default)
+        
+async def get_addon_config():
+    """Get addon configuration from Supervisor API."""
+    url = "http://supervisor/supervisor/options"
+    headers = {
+        "Authorization": f"Bearer {os.environ.get('SUPERVISOR_TOKEN')}",
+        "content-type": "application/json",
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get('data', {}).get('options', {})
+                else:
+                    logger.error(f"Failed to get addon options: {response.status}")
+                    return {}
+    except Exception as e:
+        logger.error(f"Error getting addon options: {str(e)}")
+        return {}        
 
 # Set variables with safe conversion
 CAMERA_ENTITY = os.environ.get('CAMERA_ENTITY', 'camera.front_door')
@@ -179,12 +200,15 @@ class PersonDetector:
             await asyncio.sleep(self.scan_interval)
 
 async def main():
-    # Create and run detector
+    # Get configuration from supervisor
+    config = await get_addon_config()
+    
+    # Create and run detector with config options
     detector = PersonDetector(
-        CAMERA_ENTITY,
-        CONFIDENCE_THRESHOLD,
-        SCAN_INTERVAL,
-        EDGE_IMPULSE_API_KEY
+        config.get('camera_entity', CAMERA_ENTITY),
+        float(config.get('confidence_threshold', CONFIDENCE_THRESHOLD)),
+        int(config.get('scan_interval', SCAN_INTERVAL)),
+        config.get('edge_impulse_api_key', EDGE_IMPULSE_API_KEY)
     )
     
     await detector.run_detection()
