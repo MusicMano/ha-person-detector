@@ -187,7 +187,7 @@ class PersonDetector:
         async with aiohttp.ClientSession() as session:
             await session.post(url, headers=headers, json=confidence_payload)
 
-aasync def main():
+async def main():
     print(f"Starting with camera={CAMERA_ENTITY}, confidence={CONFIDENCE_THRESHOLD}, interval={SCAN_INTERVAL}")
     
     detector = PersonDetector(
