@@ -9,6 +9,12 @@ import os
 from pathlib import Path
 import requests  # For Edge Impulse API calls
 
+# Get configuration from environment variables with defaults
+CAMERA_ENTITY = os.environ.get('CAMERA_ENTITY', 'camera.front_door')
+CONFIDENCE_THRESHOLD = float(os.environ.get('CONFIDENCE_THRESHOLD', '0.7'))
+SCAN_INTERVAL = int(os.environ.get('SCAN_INTERVAL', '1'))
+EDGE_IMPULSE_API_KEY = os.environ.get('EDGE_IMPULSE_API_KEY', '')
+
 class PersonDetector:
     def __init__(self, camera_entity, confidence_threshold, scan_interval, ei_api_key=None):
         self.camera_entity = camera_entity
@@ -181,22 +187,14 @@ class PersonDetector:
         async with aiohttp.ClientSession() as session:
             await session.post(url, headers=headers, json=confidence_payload)
 
-async def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--camera", required=True)
-    parser.add_argument("--confidence", type=float, default=0.7)
-    parser.add_argument("--interval", type=int, default=1)
-    parser.add_argument("--ei-api-key", default=None)
-    
-    args = parser.parse_args()
-    
-    print(f"Starting with camera={args.camera}, confidence={args.confidence}, interval={args.interval}")
+aasync def main():
+    print(f"Starting with camera={CAMERA_ENTITY}, confidence={CONFIDENCE_THRESHOLD}, interval={SCAN_INTERVAL}")
     
     detector = PersonDetector(
-        args.camera, 
-        args.confidence, 
-        args.interval,
-        args.ei_api_key
+        CAMERA_ENTITY, 
+        CONFIDENCE_THRESHOLD, 
+        SCAN_INTERVAL,
+        EDGE_IMPULSE_API_KEY
     )
     
     await detector.run_detection()
