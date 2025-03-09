@@ -25,32 +25,11 @@ def get_int_env(name, default):
         logger.warning(f"Could not convert {name}='{value}' to int. Using default {default}")
         return int(default)
         
-async def get_addon_config():
-    """Get addon configuration from Supervisor API."""
-    url = "http://supervisor/supervisor/options"
-    headers = {
-        "Authorization": f"Bearer {os.environ.get('SUPERVISOR_TOKEN')}",
-        "content-type": "application/json",
-    }
-    
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return data.get('data', {}).get('options', {})
-                else:
-                    logger.error(f"Failed to get addon options: {response.status}")
-                    return {}
-    except Exception as e:
-        logger.error(f"Error getting addon options: {str(e)}")
-        return {}        
-
-# Set variables with safe conversion
-CAMERA_ENTITY = os.environ.get('CAMERA_ENTITY', 'camera.front_door')
-CONFIDENCE_THRESHOLD = get_float_env('CONFIDENCE_THRESHOLD', '0.7')
-SCAN_INTERVAL = get_int_env('SCAN_INTERVAL', '1')
-EDGE_IMPULSE_API_KEY = os.environ.get('EDGE_IMPULSE_API_KEY', '')
+# Get configuration from environment variables with proper prefixing
+CAMERA_ENTITY = os.environ.get('OPTIONS_CAMERA_ENTITY', 'camera.front_door')
+CONFIDENCE_THRESHOLD = get_float_env('OPTIONS_CONFIDENCE_THRESHOLD', '0.7')
+SCAN_INTERVAL = get_int_env('OPTIONS_SCAN_INTERVAL', '1')
+EDGE_IMPULSE_API_KEY = os.environ.get('OPTIONS_EDGE_IMPULSE_API_KEY', '')
 
 class PersonDetector:
     def __init__(self, camera_entity, confidence_threshold, scan_interval, ei_api_key=None):
@@ -200,15 +179,12 @@ class PersonDetector:
             await asyncio.sleep(self.scan_interval)
 
 async def main():
-    # Get configuration from supervisor
-    config = await get_addon_config()
-    
-    # Create and run detector with config options
+    # Create and run detector
     detector = PersonDetector(
-        config.get('camera_entity', CAMERA_ENTITY),
-        float(config.get('confidence_threshold', CONFIDENCE_THRESHOLD)),
-        int(config.get('scan_interval', SCAN_INTERVAL)),
-        config.get('edge_impulse_api_key', EDGE_IMPULSE_API_KEY)
+        CAMERA_ENTITY,
+        CONFIDENCE_THRESHOLD,
+        SCAN_INTERVAL,
+        EDGE_IMPULSE_API_KEY
     )
     
     await detector.run_detection()
