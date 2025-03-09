@@ -37,7 +37,7 @@ class PersonDetector:
         self.confidence_threshold = confidence_threshold
         self.scan_interval = scan_interval
         self.ei_api_key = ei_api_key
-    
+        
         # Get supervisor token from environment
         self.supervisor_token = os.environ.get('SUPERVISOR_TOKEN')
         if not self.supervisor_token:
