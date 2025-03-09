@@ -19,3 +19,6 @@ schema:
   confidence_threshold: float(0,1)
   scan_interval: int(1,60)
   edge_impulse_api_key: str
+  # Add these lines to config.yaml
+homeassistant_api: true
+hassio_api: true

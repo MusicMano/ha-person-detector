@@ -33,18 +33,22 @@ EDGE_IMPULSE_API_KEY = os.environ.get('EDGE_IMPULSE_API_KEY', '')
 
 class PersonDetector:
     def __init__(self, camera_entity, confidence_threshold, scan_interval, ei_api_key=None):
-        self.camera_entity = camera_entity
-        self.confidence_threshold = confidence_threshold
-        self.scan_interval = scan_interval
-        self.ei_api_key = ei_api_key
-        
-        # Get supervisor token from environment
-        self.supervisor_token = os.environ.get('SUPERVISOR_TOKEN')
-        if not self.supervisor_token:
-            logger.warning("SUPERVISOR_TOKEN not available - will not be able to access HA API")
+    self.camera_entity = camera_entity
+    self.confidence_threshold = confidence_threshold
+    self.scan_interval = scan_interval
+    self.ei_api_key = ei_api_key
+    
+    # Get supervisor token from environment
+    self.supervisor_token = os.environ.get('SUPERVISOR_TOKEN')
+    if not self.supervisor_token:
+        logger.warning("SUPERVISOR_TOKEN not available - will not be able to access HA API")
+        # Try alternate location
+        self.supervisor_token = os.environ.get('HASSIO_TOKEN')
+        if self.supervisor_token:
+            logger.info("Found token as HASSIO_TOKEN instead of SUPERVISOR_TOKEN")
             
-        # Keep track of last detection state
-        self.last_state = None
+    # Keep track of last detection state
+    self.last_state = None
 
     async def get_camera_image(self):
         """Get image from Home Assistant camera."""
