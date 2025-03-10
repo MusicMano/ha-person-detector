@@ -149,110 +149,134 @@ class PersonDetector:
                         logger.error(f"Failed to update confidence sensor: {response.status}")
         except Exception as e:
             logger.error(f"Error updating confidence sensor: {str(e)}")
-            
+
     async def preprocess_image(self, image_data):
         """Preprocess the image before sending to Edge Impulse."""
         # This is a simple implementation that passes the image unchanged
         # You may need to resize, convert format, etc. depending on your Edge Impulse model
-        return image_data        
+        return image_data
+
+    async def simulate_detection(self, image_data):
+        """Simulate person detection."""
+        # Implement a simple simulation based on the image data
+        # Here we're just using a hash of the first bytes for consistency
+        if image_data is None:
+            return False, 0.0
             
-    async def detect_with_edge_impulse(self, image_data):
-    """Detect people using Edge Impulse API."""
-    if image_data is None:
-        return False, 0.0
+        hash_value = 0
+        for i in range(min(20, len(image_data))):
+            hash_value = (hash_value * 31 + image_data[i]) % 100
+            
+        # Simulate a person detection about 30% of the time
+        person_detected = hash_value < 30
+        confidence = 0.0
         
-    if not self.ei_api_key:
-        logger.warning("No Edge Impulse API key provided, cannot perform detection")
-        return False, 0.0
-    
-    try:
-        # Preprocess the image
-        processed_image = await self.preprocess_image(image_data)
-        
-        url = "https://api.edgeimpulse.com/v1/classification/classify"
-        headers = {
-            "x-api-key": self.ei_api_key,
-            "Content-Type": "application/octet-stream"
-        }
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, data=processed_image) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    logger.info(f"Edge Impulse response: {result}")
-                    
-                    # Process classification results
-                    if "classification" in result:
-                        # Look for a "person" class in the results
-                        person_confidence = 0.0
-                        for item in result["classification"]["results"]:
-                            if "person" in item["label"].lower():
-                                person_confidence = item["value"]
-                                break
-                        
-                        # Determine if a person is detected based on confidence threshold
-                        person_detected = person_confidence >= self.confidence_threshold
-                        
-                        return person_detected, person_confidence
-                    else:
-                        logger.warning("No classification results in Edge Impulse response")
-                else:
-                    logger.error(f"Edge Impulse API error: {response.status}")
-                    logger.error(await response.text())
-                    
-        return False, 0.0
-    except Exception as e:
-        logger.error(f"Error in Edge Impulse detection: {str(e)}")
-        return False, 0.0
-        
-    async def detect_with_fallback(self, image_data):
-    """Try to detect with Edge Impulse, fall back to simulation if it fails."""
-    if not self.ei_api_key:
-        # No API key, use simulation
-        logger.info("No Edge Impulse API key, using simulation mode")
-        return await self.simulate_detection(image_data)
-    
-    try:
-        # Try Edge Impulse first
-        person_detected, confidence = await self.detect_with_edge_impulse(image_data)
+        if person_detected:
+            confidence = 0.5 + (hash_value / 100.0) * 0.5  # 50-100% confidence
+            
         return person_detected, confidence
-    except Exception as e:
-        logger.error(f"Edge Impulse detection failed: {str(e)}, falling back to simulation")
-        # Fall back to simulation
-        return await self.simulate_detection(image_data)    
-    
-    async def run_detection(self):
-    """Main detection loop."""
-    logger.info(f"Starting person detection with camera: {self.camera_entity}")
-    logger.info(f"Confidence threshold: {self.confidence_threshold}")
-    logger.info(f"Scan interval: {self.scan_interval} seconds")
-    
-    while True:
+
+    async def detect_with_edge_impulse(self, image_data):
+        """Detect people using Edge Impulse API."""
+        if image_data is None:
+            return False, 0.0
+            
+        if not self.ei_api_key:
+            logger.warning("No Edge Impulse API key provided, cannot perform detection")
+            return False, 0.0
+        
         try:
-            # Get image from camera
-            image_data = await self.get_camera_image()
+            # Preprocess the image
+            processed_image = await self.preprocess_image(image_data)
             
-            if image_data is not None:
-                # Use detection with fallback
-                person_detected, confidence = await self.detect_with_fallback(image_data)
-                
-                # Only update state if it changed or on first run
-                if self.last_state is None or self.last_state != person_detected:
-                    await self.publish_state(person_detected, confidence)
-                    self.last_state = person_detected
+            url = "https://api.edgeimpulse.com/v1/classification/classify"
+            headers = {
+                "x-api-key": self.ei_api_key,
+                "Content-Type": "application/octet-stream"
+            }
+            
+            logger.info(f"Sending image to Edge Impulse (size: {len(processed_image)} bytes)")
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, data=processed_image) as response:
+                    logger.info(f"Edge Impulse HTTP status: {response.status}")
                     
-                    # Log detection
-                    if person_detected:
-                        logger.info(f"Person DETECTED with {confidence*100:.1f}% confidence")
+                    if response.status == 200:
+                        result = await response.json()
+                        logger.info(f"Edge Impulse response: {result}")
+                        
+                        # Process classification results
+                        if "classification" in result:
+                            # Look for a "person" class in the results
+                            person_confidence = 0.0
+                            for item in result["classification"]["results"]:
+                                if "person" in item["label"].lower():
+                                    person_confidence = item["value"]
+                                    break
+                            
+                            # Determine if a person is detected based on confidence threshold
+                            person_detected = person_confidence >= self.confidence_threshold
+                            
+                            return person_detected, person_confidence
+                        else:
+                            logger.warning("No classification results in Edge Impulse response")
                     else:
-                        logger.info(f"No person detected (confidence: {confidence*100:.1f}%)")
-            else:
-                logger.warning("Failed to get camera image, will retry")
+                        logger.error(f"Edge Impulse API error: {response.status}")
+                        logger.error(await response.text())
+                        
+            return False, 0.0
         except Exception as e:
-            logger.error(f"Error in detection loop: {str(e)}")
-            
-        # Wait before next detection
-        await asyncio.sleep(self.scan_interval)
+            logger.error(f"Error in Edge Impulse detection: {str(e)}")
+            return False, 0.0
+
+    async def detect_with_fallback(self, image_data):
+        """Try to detect with Edge Impulse, fall back to simulation if it fails."""
+        if not self.ei_api_key:
+            # No API key, use simulation
+            logger.info("No Edge Impulse API key, using simulation mode")
+            return await self.simulate_detection(image_data)
+        
+        try:
+            # Try Edge Impulse first
+            person_detected, confidence = await self.detect_with_edge_impulse(image_data)
+            return person_detected, confidence
+        except Exception as e:
+            logger.error(f"Edge Impulse detection failed: {str(e)}, falling back to simulation")
+            # Fall back to simulation
+            return await self.simulate_detection(image_data)
+
+    async def run_detection(self):
+        """Main detection loop."""
+        logger.info(f"Starting person detection with camera: {self.camera_entity}")
+        logger.info(f"Confidence threshold: {self.confidence_threshold}")
+        logger.info(f"Scan interval: {self.scan_interval} seconds")
+        
+        while True:
+            try:
+                # Get image from camera
+                image_data = await self.get_camera_image()
+                
+                if image_data is not None:
+                    # Use detection with fallback
+                    person_detected, confidence = await self.detect_with_fallback(image_data)
+                    
+                    # Only update state if it changed or on first run
+                    if self.last_state is None or self.last_state != person_detected:
+                        await self.publish_state(person_detected, confidence)
+                        self.last_state = person_detected
+                        
+                        # Log detection
+                        if person_detected:
+                            logger.info(f"Person DETECTED with {confidence*100:.1f}% confidence")
+                        else:
+                            logger.info(f"No person detected (confidence: {confidence*100:.1f}%)")
+                else:
+                    logger.warning("Failed to get camera image, will retry")
+            except Exception as e:
+                logger.error(f"Error in detection loop: {str(e)}")
+                
+            # Wait before next detection
+            await asyncio.sleep(self.scan_interval)
 
 async def main():
     # Create and run detector
