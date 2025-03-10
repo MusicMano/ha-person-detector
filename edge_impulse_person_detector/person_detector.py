@@ -41,8 +41,6 @@ EDGE_IMPULSE_API_KEY = config.get('edge_impulse_api_key', os.environ.get('EDGE_I
 
 # Log the configuration being used
 logger.info(f"Using configuration: camera={CAMERA_ENTITY}, confidence={CONFIDENCE_THRESHOLD}, interval={SCAN_INTERVAL}")
-
-# The rest of your code remains the same...
             f"confidence_threshold={CONFIDENCE_THRESHOLD}, " +
             f"scan_interval={SCAN_INTERVAL}")
 
