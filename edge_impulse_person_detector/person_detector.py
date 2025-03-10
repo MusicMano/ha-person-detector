@@ -56,24 +56,24 @@ class PersonDetector:
         self.confidence_threshold = confidence_threshold
         self.scan_interval = scan_interval
         self.ei_api_key = ei_api_key
-    
-    # Log whether we have an Edge Impulse API key
-    if self.ei_api_key:
-        logger.info("Edge Impulse API key provided, will use Edge Impulse for detection")
-    else:
-        logger.warning("No Edge Impulse API key provided, detection may not work")
         
-    # Get supervisor token from environment
-    self.supervisor_token = os.environ.get('SUPERVISOR_TOKEN')
-    if not self.supervisor_token:
-        logger.warning("SUPERVISOR_TOKEN not available - will not be able to access HA API")
-        # Try alternate location
-        self.supervisor_token = os.environ.get('HASSIO_TOKEN')
-        if self.supervisor_token:
-            logger.info("Found token as HASSIO_TOKEN instead of SUPERVISOR_TOKEN")
+        # Log whether we have an Edge Impulse API key
+        if self.ei_api_key:
+            logger.info("Edge Impulse API key provided, will use Edge Impulse for detection")
+        else:
+            logger.warning("No Edge Impulse API key provided, detection may not work")
             
-    # Keep track of last detection state
-    self.last_state = None
+        # Get supervisor token from environment
+        self.supervisor_token = os.environ.get('SUPERVISOR_TOKEN')
+        if not self.supervisor_token:
+            logger.warning("SUPERVISOR_TOKEN not available - will not be able to access HA API")
+            # Try alternate location
+            self.supervisor_token = os.environ.get('HASSIO_TOKEN')
+            if self.supervisor_token:
+                logger.info("Found token as HASSIO_TOKEN instead of SUPERVISOR_TOKEN")
+                
+        # Keep track of last detection state
+        self.last_state = None
 
     async def get_camera_image(self):
         """Get image from Home Assistant camera."""
