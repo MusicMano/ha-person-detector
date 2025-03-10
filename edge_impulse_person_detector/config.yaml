@@ -22,3 +22,4 @@ schema:
   # Add these lines to config.yaml
 homeassistant_api: true
 hassio_api: true
+host_network: true
