@@ -39,8 +39,8 @@ CONFIDENCE_THRESHOLD = float(config.get('confidence_threshold', os.environ.get('
 SCAN_INTERVAL = int(config.get('scan_interval', os.environ.get('SCAN_INTERVAL', 1)))
 EDGE_IMPULSE_API_KEY = config.get('edge_impulse_api_key', os.environ.get('EDGE_IMPULSE_API_KEY', ''))
 
-# Log the configuration being used
-logger.info(f"Using configuration: camera={CAMERA_ENTITY}, confidence={CONFIDENCE_THRESHOLD}, interval={SCAN_INTERVAL}")
+# Log the final configuration that will be used
+logger.info(f"Final configuration: camera_entity={CAMERA_ENTITY}, " +
             f"confidence_threshold={CONFIDENCE_THRESHOLD}, " +
             f"scan_interval={SCAN_INTERVAL}")
 
