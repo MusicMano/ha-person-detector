@@ -52,10 +52,10 @@ for key, value in os.environ.items():
 
 class PersonDetector:
     def __init__(self, camera_entity, confidence_threshold, scan_interval, ei_api_key=None):
-    self.camera_entity = camera_entity
-    self.confidence_threshold = confidence_threshold
-    self.scan_interval = scan_interval
-    self.ei_api_key = ei_api_key
+        self.camera_entity = camera_entity
+        self.confidence_threshold = confidence_threshold
+        self.scan_interval = scan_interval
+        self.ei_api_key = ei_api_key
     
     # Log whether we have an Edge Impulse API key
     if self.ei_api_key:
