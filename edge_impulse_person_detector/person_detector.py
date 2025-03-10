@@ -151,10 +151,10 @@ class PersonDetector:
             logger.error(f"Error updating confidence sensor: {str(e)}")
             
     async def preprocess_image(self, image_data):
-    """Preprocess the image before sending to Edge Impulse."""
-    # This is a simple implementation that passes the image unchanged
-    # You may need to resize, convert format, etc. depending on your Edge Impulse model
-    return image_data        
+        """Preprocess the image before sending to Edge Impulse."""
+        # This is a simple implementation that passes the image unchanged
+        # You may need to resize, convert format, etc. depending on your Edge Impulse model
+        return image_data        
             
     async def detect_with_edge_impulse(self, image_data):
     """Detect people using Edge Impulse API."""
