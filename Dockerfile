@@ -1,37 +1,34 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Install dependencies
+RUN \
+    apk add --no-cache \
+        python3 \
+        py3-pip \
+        nodejs \
+        npm \
+        git \
+        build-base \
+        python3-dev \
+        jpeg-dev \
+        zlib-dev
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-dev \
-    python3-pip \
-    build-essential \
-    libatlas-base-dev \
-    libopencv-dev \
-    nodejs \
-    npm \
-    git \
-    wget \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install Edge Impulse Linux CLI tools
+RUN npm install edge-impulse-linux -g
 
 # Copy files
 COPY . /app
 WORKDIR /app
 
-# Install Edge Impulse Linux CLI tools
-RUN npm install edge-impulse-linux -g
-
-# Install Python requirements
-RUN pip3 install --no-cache-dir --upgrade pip wheel setuptools
-RUN pip3 install --no-cache-dir numpy opencv-python-headless pillow paho-mqtt
-
 # Make run script executable
 RUN chmod a+x /app/run.sh
+
+# Install Python requirements - specify versions that work with Alpine
+RUN pip3 install --no-cache-dir wheel
+RUN pip3 install --no-cache-dir paho-mqtt pillow
+RUN pip3 install --no-cache-dir numpy==1.23.5
+RUN pip3 install --no-cache-dir opencv-python-headless==4.5.5.64
 
 # Command to run
 CMD [ "/app/run.sh" ]
