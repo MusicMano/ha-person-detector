@@ -1,32 +1,30 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Install system dependencies (using apt for Debian/Ubuntu-based containers)
-RUN apt-get update && apt-get install -y \
+# Install system dependencies using apk (Alpine's package manager)
+RUN apk add --no-cache \
     python3 \
+    py3-pip \
+    py3-numpy \
+    py3-opencv \
+    py3-pillow \
+    build-base \
     python3-dev \
-    python3-pip \
-    build-essential \
-    libatlas-base-dev \
-    libopencv-dev \
-    nodejs \
     npm \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    nodejs
 
 # Install Edge Impulse Linux CLI tools
-RUN npm install edge-impulse-linux -g --unsafe-perm
+RUN npm install edge-impulse-linux -g
 
 # Copy files
 COPY . /app
 WORKDIR /app
 
-# Install Python dependencies
-RUN pip3 install --no-cache-dir --upgrade pip wheel setuptools
-RUN pip3 install --no-cache-dir -r requirements.txt
-
 # Make run script executable
 RUN chmod a+x /app/run.sh
+
+# Install Python requirements
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Command to run
 CMD [ "/app/run.sh" ]
